@@ -9,6 +9,17 @@
 
   console.log("START 🚀");
 
+  // // ===== FUNKCJE =====
+  // function sleep(ms) {
+  //   return new Promise(r => setTimeout(r, ms));
+  // }
+
+  // async function koniec(n) {
+  //   console.log("RUN", n);
+  // }
+
+
+
 
 function getToken() {
   for (let key in localStorage) {
@@ -431,6 +442,7 @@ function help() {
 
   // ===== UI =====
   function init() {
+  console.log("INIT START ✅");
 
   const panel = document.createElement("div");
   panel.id = "omsw-panel";
@@ -560,28 +572,28 @@ function help() {
 
 
     document.getElementById("rano").onclick = () => {
-      rano(document.getElementById("days").value);
+      rano(Number(document.getElementById("days").value));
     };
     document.getElementById("narada").onclick = () => {
-      narada(document.getElementById("days").value);
+      narada(Number(document.getElementById("days").value));
     };
     document.getElementById("koniec").onclick = () => {
-      koniec(document.getElementById("days").value);
+      koniec(Number(document.getElementById("days").value));
     };
     document.getElementById("wz").onclick = () => {
-      wz(document.getElementById("day").value,document.getElementById("month").value,document.getElementById("year").value);
+      wz(Number(document.getElementById("day").value),Number(document.getElementById("month").value),Number(document.getElementById("year").value));
     };
     document.getElementById("lz").onclick = () => {
-      lz(document.getElementById("day").value,document.getElementById("month").value,document.getElementById("year").value);
+      lz(Number(document.getElementById("day").value),Number(document.getElementById("month").value),Number(document.getElementById("year").value));
     };
     document.getElementById("lzwpt").onclick = () => {
-      lzwpt(document.getElementById("day").value,document.getElementById("month").value,document.getElementById("year").value);
+      lzwpt(Number(document.getElementById("day").value),Number(document.getElementById("month").value),Number(document.getElementById("year").value));
     };
     document.getElementById("wyl_ele").onclick = () => {
-      wyl_ele(document.getElementById("day").value,document.getElementById("month").value,document.getElementById("year").value);
+      wyl_ele(Number(document.getElementById("day").value),Number(document.getElementById("month").value),Number(document.getElementById("year").value));
     };
     document.getElementById("mapa_d").onclick = () => {
-      mapa_d(document.getElementById("day").value,document.getElementById("month").value,document.getElementById("year").value);
+      mapa_d(Number(document.getElementById("day").value),Number(document.getElementById("month").value),Number(document.getElementById("year").value));
     };
     
   }
