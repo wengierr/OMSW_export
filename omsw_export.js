@@ -590,5 +590,3 @@ function help() {
   setTimeout(init, 2000);
 
 })();
-
-init();
