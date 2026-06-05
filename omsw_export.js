@@ -9,17 +9,6 @@
 
   console.log("START 🚀");
 
-  // // ===== FUNKCJE =====
-  // function sleep(ms) {
-  //   return new Promise(r => setTimeout(r, ms));
-  // }
-
-  // async function koniec(n) {
-  //   console.log("RUN", n);
-  // }
-
-
-
 
 function getToken() {
   for (let key in localStorage) {
@@ -34,41 +23,9 @@ function getToken() {
       }
 
     } catch (e) {
-      // ignoruj nie-JSON
     }
   }
 }
-
-function getOutageElements() {
-  fetch("https://omsw.spsm.pse.pl/api/reports/export-limit?type=OUTAGE_ELEMENTS_PDF", {
-  "headers": {
-    "accept": "application/json, text/plain, */*",
-    "accept-language": "pl",
-    "authorization": "Bearer " + getToken(),
-"sec-ch-ua": "\"Chromium\";v=\"148\", \"Microsoft Edge\";v=\"148\", \"Not/A)Brand\";v=\"99\"",
-    "sec-ch-ua-mobile": "?0",
-    "sec-ch-ua-platform": "\"Windows\""
-  },
-  "referrer": "https://omsw.spsm.pse.pl/schedules/1",
-  "body": null,
-  "method": "GET",
-  "mode": "cors",
-  "credentials": "include"
-});
-} //apparently niepotrzebne
-
-
-function prevDay(day, month, year) {
-  const d = new Date(year, month - 1, day); // month-1 bo JS liczy od 0
-  d.setDate(d.getDate() - 1);
-
-  const dd = String(d.getDate()).padStart(2, "0");
-  const mm = String(d.getMonth() + 1).padStart(2, "0");
-  const yyyy = d.getFullYear();
-
-  return `${yyyy}-${mm}-${dd}`;
-}
-
 
 function currDay(day, month, year) {
   const d = new Date(year, month - 1, day); // month-1 bo JS liczy od 0
@@ -92,18 +49,18 @@ function currDay2(day, month, year) {
 }
 
 
-
 function wz(day, month, year) {
+
+const { dateFrom, dateTo } = getDailyDays(day, month, year);
+  
 const d = String(day).padStart(2, "0");
 const m = String(month).padStart(2, "0");
 const y = String(year);
 
-const prevDate = prevDay(day, month, year);
-const currDate = currDay(day, month, year);
-const pdfdate = String(currDate);
-  
-const our_body = "{\"filter\":{\"scheduleTabDateFrom\":\"" + prevDate + "T22:00:00.000Z\",\"scheduleTabDateTo\":\"" + currDate + "T21:59:59.999Z\",\"scheduleTabMode\":\"BETWEEN\",\"scheduleTabDay\":null,\"cardNumber\":null,\"cardStatus\":[],\"dateFilterMode\":\"SWITCHED_OFF_OR_ON\",\"dateFrom\":\"" + prevDate + "T22:00:00.000Z\",\"dateTo\":\"" + currDate + "T21:59:59.999Z\",\"odmList\":[{\"id\":\"WA\",\"value\":false},{\"id\":\"RA\",\"value\":false},{\"id\":\"KA\",\"value\":false},{\"id\":\"PO\",\"value\":false},{\"id\":\"BY\",\"value\":false},{\"id\":\"ZAG\",\"value\":false}],\"opcMarker\":[],\"influenceOnExchange\":[],\"operativeManagements\":[],\"inPwk\":[],\"inPwt\":[],\"outageTypes\":[],\"outageKinds\":[],\"voltageProbeRequired\":null,\"scheduleRequired\":null,\"voltageLevels\":[],\"voltageList\":[],\"positiveResultCodes\":[{\"id\":\"PLA\",\"value\":true},{\"id\":\"ZW\",\"value\":true},{\"id\":\"PC\",\"value\":true}],\"otherResultCodes\":[{\"id\":\"NP\",\"value\":false},{\"id\":\"OD\",\"value\":false},{\"id\":\"WYC\",\"value\":false}],\"businessPartner\":[],\"businessPartnerRole\":[],\"planDeCjiOsd\":null,\"showAx\":true,\"showOx\":null,\"separationCC\":null,\"cartesianPositiveResultCodes\":true,\"cartesianOtherResultCodes\":[{\"id\":\"NP\",\"value\":false},{\"id\":\"OD\",\"value\":false},{\"id\":\"WYC\",\"value\":false}],\"extractAllSubelements\":null,\"cardVisibility\":\"NOT_HIDDEN\"},\"sort\":{\"preset\":\"_area_voltage_vl\",\"fields\":[]}}"
+const pdfdate = String(currDay(day, month, year));
 
+const our_body = "{\"filter\":{\"scheduleTabDateFrom\":\"" + dateFrom + "\",\"scheduleTabDateTo\":\"" + dateTo + "\",\"scheduleTabMode\":\"BETWEEN\",\"scheduleTabDay\":null,\"cardNumber\":null,\"cardStatus\":[],\"dateFilterMode\":\"SWITCHED_OFF_OR_ON\",\"dateFrom\":\"" + dateFrom + "\",\"dateTo\":\"" + dateTo + "\",\"odmList\":[{\"id\":\"WA\",\"value\":false},{\"id\":\"RA\",\"value\":false},{\"id\":\"KA\",\"value\":false},{\"id\":\"PO\",\"value\":false},{\"id\":\"BY\",\"value\":false},{\"id\":\"ZAG\",\"value\":false}],\"opcMarker\":[],\"influenceOnExchange\":[],\"operativeManagements\":[],\"inPwk\":[],\"inPwt\":[],\"outageTypes\":[],\"outageKinds\":[],\"voltageProbeRequired\":null,\"scheduleRequired\":null,\"voltageLevels\":[],\"voltageList\":[],\"positiveResultCodes\":[{\"id\":\"PLA\",\"value\":true},{\"id\":\"ZW\",\"value\":true},{\"id\":\"PC\",\"value\":true}],\"otherResultCodes\":[{\"id\":\"NP\",\"value\":false},{\"id\":\"OD\",\"value\":false},{\"id\":\"WYC\",\"value\":false}],\"businessPartner\":[],\"businessPartnerRole\":[],\"planDeCjiOsd\":null,\"showAx\":true,\"showOx\":null,\"separationCC\":null,\"cartesianPositiveResultCodes\":true,\"cartesianOtherResultCodes\":[{\"id\":\"NP\",\"value\":false},{\"id\":\"OD\",\"value\":false},{\"id\":\"WYC\",\"value\":false}],\"extractAllSubelements\":null,\"cardVisibility\":\"NOT_HIDDEN\"},\"sort\":{\"preset\":\"_area_voltage_vl\",\"fields\":[]}}"
+  
 return fetch("https://omsw.spsm.pse.pl/api/schedules/1/cards/list/export/pdf", {
   "headers": {
     "accept": "application/json, text/plain, */*",
@@ -141,15 +98,16 @@ return fetch("https://omsw.spsm.pse.pl/api/schedules/1/cards/list/export/pdf", {
 
 
 function lz(day, month, year) {
+
+const { dateFrom, dateTo } = getDailyDays(day, month, year);
+  
 const d = String(day).padStart(2, "0");
 const m = String(month).padStart(2, "0");
 const y = String(year);
 
-const prevDate = prevDay(day, month, year);
-const currDate = currDay(day, month, year);
-const pdfdate = String(currDate);
+const pdfdate = String(currDay(day, month, year));
   
-const our_body = "{\"filter\":{\"scheduleTabDateFrom\":\"" + prevDate + "T22:00:00.000Z\",\"scheduleTabDateTo\":\"" + currDate + "T21:59:59.999Z\",\"scheduleTabMode\":\"BETWEEN\",\"scheduleTabDay\":null,\"cardNumber\":null,\"cardStatus\":[],\"dateFilterMode\":null,\"dateFrom\":\"" + prevDate + "T22:00:00.000Z\",\"dateTo\":\"" + currDate + "T21:59:59.999Z\",\"odmList\":[{\"id\":\"WA\",\"value\":false},{\"id\":\"RA\",\"value\":false},{\"id\":\"KA\",\"value\":false},{\"id\":\"PO\",\"value\":false},{\"id\":\"BY\",\"value\":false},{\"id\":\"ZAG\",\"value\":false}],\"opcMarker\":[],\"influenceOnExchange\":[],\"operativeManagements\":[],\"inPwk\":[],\"inPwt\":[],\"outageTypes\":[],\"outageKinds\":[],\"voltageProbeRequired\":null,\"scheduleRequired\":null,\"voltageLevels\":[],\"voltageList\":[],\"positiveResultCodes\":[{\"id\":\"PLA\",\"value\":true},{\"id\":\"ZW\",\"value\":true},{\"id\":\"PC\",\"value\":true}],\"otherResultCodes\":[{\"id\":\"NP\",\"value\":false},{\"id\":\"OD\",\"value\":false},{\"id\":\"WYC\",\"value\":false}],\"businessPartner\":[],\"businessPartnerRole\":[],\"planDeCjiOsd\":\"\",\"showAx\":true,\"showOx\":null,\"separationCC\":null,\"cartesianPositiveResultCodes\":true,\"cartesianOtherResultCodes\":[{\"id\":\"NP\",\"value\":false},{\"id\":\"OD\",\"value\":false},{\"id\":\"WYC\",\"value\":false}],\"extractAllSubelements\":null,\"cardVisibility\":\"NOT_HIDDEN\"},\"sort\":{\"preset\":null,\"fields\":[{\"field\":\"outageVoltageLevel\",\"order\":\"asc\"}]}}"  
+const our_body = "{\"filter\":{\"scheduleTabDateFrom\":\"" + dateFrom + "\",\"scheduleTabDateTo\":\"" + dateTo + "\",\"scheduleTabMode\":\"BETWEEN\",\"scheduleTabDay\":null,\"cardNumber\":null,\"cardStatus\":[],\"dateFilterMode\":null,\"dateFrom\":\"" + dateFrom + "\",\"dateTo\":\"" + dateTo + "\",\"odmList\":[{\"id\":\"WA\",\"value\":false},{\"id\":\"RA\",\"value\":false},{\"id\":\"KA\",\"value\":false},{\"id\":\"PO\",\"value\":false},{\"id\":\"BY\",\"value\":false},{\"id\":\"ZAG\",\"value\":false}],\"opcMarker\":[],\"influenceOnExchange\":[],\"operativeManagements\":[],\"inPwk\":[],\"inPwt\":[],\"outageTypes\":[],\"outageKinds\":[],\"voltageProbeRequired\":null,\"scheduleRequired\":null,\"voltageLevels\":[],\"voltageList\":[],\"positiveResultCodes\":[{\"id\":\"PLA\",\"value\":true},{\"id\":\"ZW\",\"value\":true},{\"id\":\"PC\",\"value\":true}],\"otherResultCodes\":[{\"id\":\"NP\",\"value\":false},{\"id\":\"OD\",\"value\":false},{\"id\":\"WYC\",\"value\":false}],\"businessPartner\":[],\"businessPartnerRole\":[],\"planDeCjiOsd\":\"\",\"showAx\":true,\"showOx\":null,\"separationCC\":null,\"cartesianPositiveResultCodes\":true,\"cartesianOtherResultCodes\":[{\"id\":\"NP\",\"value\":false},{\"id\":\"OD\",\"value\":false},{\"id\":\"WYC\",\"value\":false}],\"extractAllSubelements\":null,\"cardVisibility\":\"NOT_HIDDEN\"},\"sort\":{\"preset\":null,\"fields\":[{\"field\":\"outageVoltageLevel\",\"order\":\"asc\"}]}}"  
 
 return fetch("https://omsw.spsm.pse.pl/api/schedules/1/cards/list/export/pdf", {
   "headers": {
@@ -188,15 +146,15 @@ return fetch("https://omsw.spsm.pse.pl/api/schedules/1/cards/list/export/pdf", {
 
 
 function lzwpt(day, month, year) {
+const { dateFrom, dateTo } = getDailyDays(day, month, year);
+  
 const d = String(day).padStart(2, "0");
 const m = String(month).padStart(2, "0");
 const y = String(year);
 
-const prevDate = prevDay(day, month, year);
-const currDate = currDay(day, month, year);
-const pdfdate = String(currDate);
+const pdfdate = String(currDay(day, month, year));
   
-const our_body = "{\"filter\":{\"scheduleTabDateFrom\":\"" + prevDate + "T22:00:00.000Z\",\"scheduleTabDateTo\":\"" + currDate + "T21:59:59.999Z\",\"scheduleTabMode\":\"BETWEEN\",\"scheduleTabDay\":null,\"cardNumber\":null,\"cardStatus\":[],\"dateFilterMode\":null,\"dateFrom\":\"" + prevDate + "T22:00:00.000Z\",\"dateTo\":\"" + currDate + "T21:59:59.999Z\",\"odmList\":[{\"id\":\"WA\",\"value\":false},{\"id\":\"RA\",\"value\":false},{\"id\":\"KA\",\"value\":false},{\"id\":\"PO\",\"value\":false},{\"id\":\"BY\",\"value\":false},{\"id\":\"ZAG\",\"value\":false}],\"opcMarker\":[],\"influenceOnExchange\":[],\"operativeManagements\":[],\"inPwk\":[],\"inPwt\":[],\"outageTypes\":[],\"outageKinds\":[],\"voltageProbeRequired\":null,\"scheduleRequired\":null,\"voltageLevels\":[],\"voltageList\":[],\"positiveResultCodes\":[{\"id\":\"PLA\",\"value\":true},{\"id\":\"ZW\",\"value\":true},{\"id\":\"PC\",\"value\":true}],\"otherResultCodes\":[{\"id\":\"NP\",\"value\":false},{\"id\":\"OD\",\"value\":false},{\"id\":\"WYC\",\"value\":false}],\"businessPartner\":[],\"businessPartnerRole\":[],\"planDeCjiOsd\":null,\"showAx\":true,\"showOx\":null,\"separationCC\":null,\"cartesianPositiveResultCodes\":true,\"cartesianOtherResultCodes\":[{\"id\":\"NP\",\"value\":false},{\"id\":\"OD\",\"value\":false},{\"id\":\"WYC\",\"value\":false}],\"extractAllSubelements\":null,\"cardVisibility\":\"NOT_HIDDEN\"},\"sort\":{\"preset\":\"_area_voltage_vl\",\"fields\":[{\"field\":\"status\",\"order\":\"desc\"}]}}"
+const our_body = "{\"filter\":{\"scheduleTabDateFrom\":\"" + dateFrom + "\",\"scheduleTabDateTo\":\"" + dateTo + "\",\"scheduleTabMode\":\"BETWEEN\",\"scheduleTabDay\":null,\"cardNumber\":null,\"cardStatus\":[],\"dateFilterMode\":null,\"dateFrom\":\"" + dateFrom + "\",\"dateTo\":\"" + dateTo + "\",\"odmList\":[{\"id\":\"WA\",\"value\":false},{\"id\":\"RA\",\"value\":false},{\"id\":\"KA\",\"value\":false},{\"id\":\"PO\",\"value\":false},{\"id\":\"BY\",\"value\":false},{\"id\":\"ZAG\",\"value\":false}],\"opcMarker\":[],\"influenceOnExchange\":[],\"operativeManagements\":[],\"inPwk\":[],\"inPwt\":[],\"outageTypes\":[],\"outageKinds\":[],\"voltageProbeRequired\":null,\"scheduleRequired\":null,\"voltageLevels\":[],\"voltageList\":[],\"positiveResultCodes\":[{\"id\":\"PLA\",\"value\":true},{\"id\":\"ZW\",\"value\":true},{\"id\":\"PC\",\"value\":true}],\"otherResultCodes\":[{\"id\":\"NP\",\"value\":false},{\"id\":\"OD\",\"value\":false},{\"id\":\"WYC\",\"value\":false}],\"businessPartner\":[],\"businessPartnerRole\":[],\"planDeCjiOsd\":null,\"showAx\":true,\"showOx\":null,\"separationCC\":null,\"cartesianPositiveResultCodes\":true,\"cartesianOtherResultCodes\":[{\"id\":\"NP\",\"value\":false},{\"id\":\"OD\",\"value\":false},{\"id\":\"WYC\",\"value\":false}],\"extractAllSubelements\":null,\"cardVisibility\":\"NOT_HIDDEN\"},\"sort\":{\"preset\":\"_area_voltage_vl\",\"fields\":[{\"field\":\"status\",\"order\":\"desc\"}]}}"
 
 return fetch("https://omsw.spsm.pse.pl/api/schedules/1/cards/list/export/pdf", {
   "headers": {
@@ -235,15 +193,15 @@ return fetch("https://omsw.spsm.pse.pl/api/schedules/1/cards/list/export/pdf", {
 
 function wyl_ele(day, month, year) {
 
+const { dateFrom, dateTo } = getDailyDays(day, month, year);
+  
 const d = String(day).padStart(2, "0");
 const m = String(month).padStart(2, "0");
 const y = String(year);
 
-const prevDate = prevDay(day, month, year);
-const currDate = currDay(day, month, year);
-const pdfdate = String(currDate);
+const pdfdate = String(currDay(day, month, year));
   
-const our_body = "{\"filter\":{\"scheduleTabDateFrom\":\"" + prevDate + "T22:00:00.000Z\",\"scheduleTabDateTo\":\"" + currDate + "T21:59:59.999Z\",\"scheduleTabMode\":\"BETWEEN\",\"scheduleTabDay\":null,\"cardNumber\":null,\"cardStatus\":[],\"dateFilterMode\":null,\"dateFrom\":\"" + prevDate + "T22:00:00.000Z\",\"dateTo\":\"" + currDate + "T21:59:59.999Z\",\"odmList\":[{\"id\":\"WA\",\"value\":false},{\"id\":\"RA\",\"value\":false},{\"id\":\"KA\",\"value\":false},{\"id\":\"PO\",\"value\":false},{\"id\":\"BY\",\"value\":false},{\"id\":\"ZAG\",\"value\":false}],\"opcMarker\":[],\"influenceOnExchange\":[],\"operativeManagements\":[],\"inPwk\":[],\"inPwt\":[],\"outageTypes\":[],\"outageKinds\":[],\"voltageProbeRequired\":null,\"scheduleRequired\":null,\"voltageLevels\":[],\"voltageList\":[],\"positiveResultCodes\":[{\"id\":\"PLA\",\"value\":true},{\"id\":\"ZW\",\"value\":true},{\"id\":\"PC\",\"value\":true}],\"otherResultCodes\":[{\"id\":\"NP\",\"value\":false},{\"id\":\"OD\",\"value\":false},{\"id\":\"WYC\",\"value\":false}],\"businessPartner\":[],\"businessPartnerRole\":[],\"planDeCjiOsd\":\"\",\"showAx\":true,\"showOx\":null,\"separationCC\":null,\"cartesianPositiveResultCodes\":true,\"cartesianOtherResultCodes\":[{\"id\":\"NP\",\"value\":false},{\"id\":\"OD\",\"value\":false},{\"id\":\"WYC\",\"value\":false}],\"extractAllSubelements\":null,\"cardVisibility\":\"NOT_HIDDEN\"},\"sort\":{\"preset\":null,\"fields\":[{\"field\":\"outageVoltageLevel\",\"order\":\"asc\"}]}}"
+const our_body = "{\"filter\":{\"scheduleTabDateFrom\":\"" + dateFrom + "\",\"scheduleTabDateTo\":\"" + dateTo + "\",\"scheduleTabMode\":\"BETWEEN\",\"scheduleTabDay\":null,\"cardNumber\":null,\"cardStatus\":[],\"dateFilterMode\":null,\"dateFrom\":\"" + dateFrom + "\",\"dateTo\":\"" + dateTo + "\",\"odmList\":[{\"id\":\"WA\",\"value\":false},{\"id\":\"RA\",\"value\":false},{\"id\":\"KA\",\"value\":false},{\"id\":\"PO\",\"value\":false},{\"id\":\"BY\",\"value\":false},{\"id\":\"ZAG\",\"value\":false}],\"opcMarker\":[],\"influenceOnExchange\":[],\"operativeManagements\":[],\"inPwk\":[],\"inPwt\":[],\"outageTypes\":[],\"outageKinds\":[],\"voltageProbeRequired\":null,\"scheduleRequired\":null,\"voltageLevels\":[],\"voltageList\":[],\"positiveResultCodes\":[{\"id\":\"PLA\",\"value\":true},{\"id\":\"ZW\",\"value\":true},{\"id\":\"PC\",\"value\":true}],\"otherResultCodes\":[{\"id\":\"NP\",\"value\":false},{\"id\":\"OD\",\"value\":false},{\"id\":\"WYC\",\"value\":false}],\"businessPartner\":[],\"businessPartnerRole\":[],\"planDeCjiOsd\":\"\",\"showAx\":true,\"showOx\":null,\"separationCC\":null,\"cartesianPositiveResultCodes\":true,\"cartesianOtherResultCodes\":[{\"id\":\"NP\",\"value\":false},{\"id\":\"OD\",\"value\":false},{\"id\":\"WYC\",\"value\":false}],\"extractAllSubelements\":null,\"cardVisibility\":\"NOT_HIDDEN\"},\"sort\":{\"preset\":null,\"fields\":[{\"field\":\"outageVoltageLevel\",\"order\":\"asc\"}]}}"
 
 return fetch("https://omsw.spsm.pse.pl/api/schedules/1/cards/elements/export/pdf", {
   "headers": {
@@ -286,16 +244,15 @@ return fetch("https://omsw.spsm.pse.pl/api/schedules/1/cards/elements/export/pdf
 
 function mapa_d(day, month, year) {
 
+const { dateFrom, dateTo } = getDailyDays(day, month, year);
+  
 const d = String(day).padStart(2, "0");
 const m = String(month).padStart(2, "0");
 const y = String(year);
 
-const prevDate = prevDay(day, month, year);
-const currDate = currDay(day, month, year);
-const pdfdate = String(currDate);
-  
-const our_body = "{\"filter\":{\"scheduleTabDateFrom\":\"" + prevDate + "T22:00:00.000Z\",\"scheduleTabDateTo\":\"" + currDate + "T21:59:59.999Z\",\"scheduleTabMode\":\"ONE_DAY\",\"scheduleTabDay\":[" + year + "," + month + "," + day + ",0,0],\"cardNumber\":null,\"cardStatus\":[],\"dateFilterMode\":null,\"dateFrom\":null,\"dateTo\":null,\"odmList\":[{\"id\":\"WA\",\"value\":false},{\"id\":\"RA\",\"value\":false},{\"id\":\"KA\",\"value\":false},{\"id\":\"PO\",\"value\":false},{\"id\":\"BY\",\"value\":false},{\"id\":\"ZAG\",\"value\":false}],\"opcMarker\":[],\"influenceOnExchange\":[],\"operativeManagements\":[],\"inPwk\":[],\"inPwt\":[],\"outageTypes\":[],\"outageKinds\":[],\"voltageProbeRequired\":null,\"scheduleRequired\":null,\"voltageLevels\":[],\"voltageList\":[],\"positiveResultCodes\":[{\"id\":\"PLA\",\"value\":false},{\"id\":\"ZW\",\"value\":false},{\"id\":\"PC\",\"value\":false}],\"otherResultCodes\":[{\"id\":\"NP\",\"value\":false},{\"id\":\"OD\",\"value\":false},{\"id\":\"WYC\",\"value\":false}],\"businessPartner\":[],\"businessPartnerRole\":[],\"planDeCjiOsd\":null,\"showAx\":null,\"showOx\":null,\"separationCC\":null,\"extractAllSubelements\":null,\"cartesianPositiveResultCodes\":null,\"cartesianOtherResultCodes\":[{\"id\":\"NP\",\"value\":false,\"label\":\"\"},{\"id\":\"OD\",\"value\":false,\"label\":\"\"},{\"id\":\"WYC\",\"value\":false,\"label\":\"\"}],\"cardVisibility\":\"NOT_HIDDEN\"},\"sort\":{\"preset\":null,\"fields\":[]}}"
+const pdfdate = String(currDay(day, month, year));
 
+const our_body = "{\"filter\":{\"scheduleTabDateFrom\":\"" + dateFrom + "\",\"scheduleTabDateTo\":\"" + dateTo + "\",\"scheduleTabMode\":\"ONE_DAY\",\"scheduleTabDay\":[" + year + "," + month + "," + day + ",0,0],\"cardNumber\":null,\"cardStatus\":[],\"dateFilterMode\":null,\"dateFrom\":null,\"dateTo\":null,\"odmList\":[{\"id\":\"WA\",\"value\":false},{\"id\":\"RA\",\"value\":false},{\"id\":\"KA\",\"value\":false},{\"id\":\"PO\",\"value\":false},{\"id\":\"BY\",\"value\":false},{\"id\":\"ZAG\",\"value\":false}],\"opcMarker\":[],\"influenceOnExchange\":[],\"operativeManagements\":[],\"inPwk\":[],\"inPwt\":[],\"outageTypes\":[],\"outageKinds\":[],\"voltageProbeRequired\":null,\"scheduleRequired\":null,\"voltageLevels\":[],\"voltageList\":[],\"positiveResultCodes\":[{\"id\":\"PLA\",\"value\":false},{\"id\":\"ZW\",\"value\":false},{\"id\":\"PC\",\"value\":false}],\"otherResultCodes\":[{\"id\":\"NP\",\"value\":false},{\"id\":\"OD\",\"value\":false},{\"id\":\"WYC\",\"value\":false}],\"businessPartner\":[],\"businessPartnerRole\":[],\"planDeCjiOsd\":null,\"showAx\":null,\"showOx\":null,\"separationCC\":null,\"extractAllSubelements\":null,\"cartesianPositiveResultCodes\":null,\"cartesianOtherResultCodes\":[{\"id\":\"NP\",\"value\":false,\"label\":\"\"},{\"id\":\"OD\",\"value\":false,\"label\":\"\"},{\"id\":\"WYC\",\"value\":false,\"label\":\"\"}],\"cardVisibility\":\"NOT_HIDDEN\"},\"sort\":{\"preset\":null,\"fields\":[]}}"
 
 return fetch("https://omsw.spsm.pse.pl/api/schedules/1/cards/elements/export/visioHourlyKdm", {
   "headers": {
@@ -336,8 +293,6 @@ return fetch("https://omsw.spsm.pse.pl/api/schedules/1/cards/elements/export/vis
 }
 
 
-
-
 function shiftDateFromToday(offset) {
   const d = new Date();
   d.setDate(d.getDate() + offset);
@@ -349,17 +304,14 @@ function shiftDateFromToday(offset) {
   return { day, month, year };
 }
 
-function sleep(ms) {
-  return new Promise(r => setTimeout(r, ms));
-}
+// function sleep(ms) {
+//   return new Promise(r => setTimeout(r, ms));
+// }
 
 async function narada(n1) {
   for (let i = 0; i <= n1; i++) {
 
-    // 👉 dzień od jutra
     const { day, month, year } = shiftDateFromToday(i + 1);
-
-    console.log(`DATA: ${day}.${month}.${year}`);
 
     await wz(day, month, year);
 
@@ -370,19 +322,16 @@ async function narada(n1) {
     await mapa_d(day, month, year);
   }
 
-  console.log("DONE");
+  pokazKomunikat("Zakończono pobieranie dokumentów do narady", 5);
 }
 
 async function rano(n1) {
   const { day, month, year } = shiftDateFromToday(1);
 
-  console.log(`DATA: ${day}.${month}.${year}`);
-
   await wz(day, month, year);
   
   for (let i = 0; i <= n1; i++) {
 
-    // 👉 dzień od jutra
     const { day, month, year } = shiftDateFromToday(i + 2);
 
     console.log(`DATA: ${day}.${month}.${year}`);
@@ -390,7 +339,7 @@ async function rano(n1) {
     await wz(day, month, year);
   }
 
-  console.log("DONE");
+  pokazKomunikat("Zakończono pobieranie wstępnych", 5);
 }
 
 
@@ -411,8 +360,216 @@ async function koniec(n1) {
     await mapa_d(day, month, year);
   }
 
-  console.log("DONE");
+  pokazKomunikat("Zakończono pobieranie dokumentów na koniec dnia", 5);
 }
+
+
+function pokazKomunikat(msg, time) {
+    const div = document.createElement("div");
+
+    div.textContent = msg;
+
+    Object.assign(div.style, {
+        position: "fixed",
+        top: "20px",
+        left: "50%",
+        transform: "translateX(-50%)",
+        background: "#333",
+        color: "#fff",
+        padding: "12px 20px",
+        borderRadius: "12px",
+        boxShadow: "0 4px 10px rgba(0,0,0,0.3)",
+        zIndex: 9999,
+        fontSize: "14px",
+        opacity: 0,
+        transition: "opacity 0.3s ease"
+    });
+
+    document.body.appendChild(div);
+
+    // fade-in
+    setTimeout(() => {
+        div.style.opacity = 1;
+    }, 10);
+
+    // po 5 sekundach fade-out i usunięcie
+    setTimeout(() => {
+        div.style.opacity = 0;
+        setTimeout(() => div.remove(), 300);
+    }, time*1000);
+}
+  
+  
+function getScheduleIdSafe() {
+  const match = window.location.pathname.match(/\/schedules\/(\d+)/);
+
+  if (match && parseInt(match[1], 10) > 1) {
+    const scheduleId = parseInt(match[1], 10);
+    return match[1];
+  }
+  else {
+    pokazKomunikat("Nie rozpoczęto pobierania plików — jesteś w złym oknie", 5);
+    return null;
+  }
+}
+
+
+
+function tyg(){
+
+const { dateFrom, dateTo } = getWeeklyDays();
+const pdfdateto = shortDate(String(dateFrom));
+const pdfdatefrom = shortDate(String(dateTo));
+
+const scheduleId = getScheduleIdSafe();
+
+if (!scheduleId) return;
+  
+return fetch(`https://omsw.spsm.pse.pl/api/schedules/${scheduleId}/cards/list/export/compliance/pdf/PWM`, {
+  "headers": {
+    "accept": "application/json, text/plain, */*",
+    "accept-language": "pl",
+    "authorization": "Bearer " + getToken(),
+    "cache-control": "no-cache",
+    "content-type": "application/json",
+    "pragma": "no-cache",
+    "sec-ch-ua": "\"Chromium\";v=\"148\", \"Microsoft Edge\";v=\"148\", \"Not/A)Brand\";v=\"99\"",
+    "sec-ch-ua-mobile": "?0",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "sec-fetch-dest": "empty",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-site": "same-origin"
+  },
+  "referrer": `https://omsw.spsm.pse.pl/schedules/${scheduleId}`,
+  "body": "{\"filter\":{\"scheduleTabDateFrom\":\"" + dateFrom + "\",\"scheduleTabDateTo\":\"" + dateTo + "\",\"scheduleTabMode\":\"BETWEEN\",\"scheduleTabDay\":null,\"cardNumber\":\"\",\"cardStatus\":[],\"dateFilterMode\":null,\"dateFrom\":\"" + dateFrom + "\",\"dateTo\":\"" + dateTo + "\",\"odmList\":[{\"id\":\"WA\",\"value\":false},{\"id\":\"RA\",\"value\":false},{\"id\":\"KA\",\"value\":false},{\"id\":\"PO\",\"value\":false},{\"id\":\"BY\",\"value\":false},{\"id\":\"ZAG\",\"value\":false}],\"opcMarker\":[],\"influenceOnExchange\":[],\"operativeManagements\":[],\"inPwk\":[],\"inPwt\":[],\"outageTypes\":[],\"outageKinds\":[],\"voltageProbeRequired\":null,\"scheduleRequired\":null,\"voltageLevels\":[],\"voltageList\":[],\"positiveResultCodes\":[{\"id\":\"PLA\",\"value\":true},{\"id\":\"ZW\",\"value\":true},{\"id\":\"PC\",\"value\":true}],\"otherResultCodes\":[{\"id\":\"NP\",\"value\":false},{\"id\":\"OD\",\"value\":false},{\"id\":\"WYC\",\"value\":false}],\"businessPartner\":[],\"businessPartnerRole\":[],\"planDeCjiOsd\":\"\",\"showAx\":true,\"showOx\":null,\"separationCC\":null,\"extractAllSubelements\":null,\"cartesianPositiveResultCodes\":null,\"cartesianOtherResultCodes\":[{\"id\":\"NP\",\"value\":false,\"label\":\"\"},{\"id\":\"OD\",\"value\":false,\"label\":\"\"},{\"id\":\"WYC\",\"value\":false,\"label\":\"\"}],\"cardVisibility\":\"NOT_HIDDEN\"},\"sort\":{\"preset\":\"_area_voltage_vl\",\"fields\":[]}}",
+  "method": "POST",
+  "mode": "cors",
+  "credentials": "include"
+})
+.then(res => {
+  console.log("STATUS:", res.status);
+  if (!res.ok) {
+    throw new Error("HTTP error " + res.status);
+  }
+  return res.blob();
+})
+.then(blob => {
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `tyg_${pdfdatefrom}_${pdfdateto}.pdf`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+});
+}
+
+
+function getDailyDays(day, month, year) {
+    const date = new Date(year, month - 1, day);
+
+    const start = new Date(date);
+    start.setHours(0, 0, 0, 0);
+  
+    const stop = new Date(date);
+    stop.setHours(23, 59, 59, 999);
+  
+    return {
+        dateFrom: start.toISOString(),
+        dateTo: stop.toISOString()
+    };
+}
+  
+function getWeeklyDays() {
+  const now = new Date();
+
+  const day = now.getDay(); // 0-6
+  const daysToSaturday = (6 - day + 7) % 7;
+
+  const saturday = new Date(now);
+  saturday.setHours(0, 0, 0, 0);
+  saturday.setDate(now.getDate() + daysToSaturday);
+
+  const friday = new Date(saturday);
+  friday.setDate(saturday.getDate() + 6);
+  friday.setHours(23, 59, 59, 999);
+
+  return {
+    dateFrom: saturday.toISOString(),
+    dateTo: friday.toISOString()
+  };
+}
+
+
+function shortDate(isoString) {
+  return isoString.slice(0, 10);
+}
+
+function mapaTyg(){
+
+const { dateFrom, dateTo } = getWeeklyDays();
+const pdfdateto = shortDate(String(dateFrom));
+const pdfdatefrom = shortDate(String(dateTo));
+
+const scheduleId = getScheduleIdSafe();
+
+if (!scheduleId) return;
+
+
+fetch(`https://omsw.spsm.pse.pl/api/schedules/${scheduleId}/cards/elements/export/visioForDaysKdm`, {
+  "headers": {
+    "accept": "application/json, text/plain, */*",
+    "accept-language": "pl",
+    "authorization": "Bearer " + getToken(),
+    "cache-control": "no-cache",
+    "content-type": "application/json",
+    "decision": "accept",
+    "pragma": "no-cache",
+    "sec-ch-ua": "\"Chromium\";v=\"148\", \"Microsoft Edge\";v=\"148\", \"Not/A)Brand\";v=\"99\"",
+    "sec-ch-ua-mobile": "?0",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "sec-fetch-dest": "empty",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-site": "same-origin"
+  },
+  "referrer": `https://omsw.spsm.pse.pl/schedules/${scheduleId}`,
+  "body": "{\"filter\":{\"scheduleTabDateFrom\":\"" + dateFrom + "\",\"scheduleTabDateTo\":\"" + dateTo + "\",\"scheduleTabMode\":\"BETWEEN\",\"scheduleTabDay\":null,\"cardNumber\":null,\"cardStatus\":[],\"dateFilterMode\":null,\"dateFrom\":\"" + dateFrom + "\",\"dateTo\":\"" + dateTo + "\",\"odmList\":[{\"id\":\"WA\",\"value\":false},{\"id\":\"RA\",\"value\":false},{\"id\":\"KA\",\"value\":false},{\"id\":\"PO\",\"value\":false},{\"id\":\"BY\",\"value\":false},{\"id\":\"ZAG\",\"value\":false}],\"opcMarker\":[],\"influenceOnExchange\":[],\"operativeManagements\":[],\"inPwk\":[],\"inPwt\":[],\"outageTypes\":[],\"outageKinds\":[],\"voltageProbeRequired\":null,\"scheduleRequired\":null,\"voltageLevels\":[],\"voltageList\":[],\"positiveResultCodes\":[{\"id\":\"PLA\",\"value\":false},{\"id\":\"ZW\",\"value\":false},{\"id\":\"PC\",\"value\":false}],\"otherResultCodes\":[{\"id\":\"NP\",\"value\":false},{\"id\":\"OD\",\"value\":false},{\"id\":\"WYC\",\"value\":false}],\"businessPartner\":[],\"businessPartnerRole\":[],\"planDeCjiOsd\":null,\"showAx\":null,\"showOx\":null,\"separationCC\":null,\"extractAllSubelements\":null,\"cartesianPositiveResultCodes\":null,\"cartesianOtherResultCodes\":[{\"id\":\"NP\",\"value\":false,\"label\":\"\"},{\"id\":\"OD\",\"value\":false,\"label\":\"\"},{\"id\":\"WYC\",\"value\":false,\"label\":\"\"}],\"cardVisibility\":\"NOT_HIDDEN\"},\"sort\":{\"preset\":null,\"fields\":[]},\"exportMode\":\"SINGLE_FILE\"}",
+  "method": "POST",
+  "mode": "cors",
+  "credentials": "include"
+})
+.then(res => {
+  console.log("STATUS:", res.status);
+  if (!res.ok) {
+    throw new Error("HTTP error " + res.status);
+  }
+  return res.blob();
+})
+.then(blob => {
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `tyg_${pdfdatefrom}_${pdfdateto}.wyl`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+});
+}
+
+
+async function tygodniowka() {
+
+  pokazKomunikat("Rozpoczęto pobieranie tygodniówki - może chwilę potrwać", 5);
+
+  await mapaTyg();
+
+  await tyg();
+
+  pokazKomunikat("Zakończono pobieranie tygodniówki", 5);
+}
+  
 
 function help() {
 '======================================='
@@ -421,9 +578,6 @@ function help() {
 'Pomoc wydrukuje się w podzakładce info na console'
 '======================================='
                                                                                                                                                                                                          
-
-
-  
   
   console.log("%cWitaj w pisanym na kolanie programie wspomagającym pracę w OMSW", "color: green;");
   console.log("Kod został zaprojektowany tak, aby przyspieszać eksporty plików i zapisywać je pod odpowiednimi nazwami.");
@@ -475,6 +629,7 @@ function help() {
       <button id="rano">Wstępne</button>
       <button id="narada">Do narady</button>
       <button id="koniec">Na koniec dnia</button>
+      <button id="tygodniowka">Tygodniówka</button>
     </div>
 
     <div id="status" style="margin-top:8px; font-size:12px;"></div>
@@ -579,6 +734,9 @@ function help() {
     };
     document.getElementById("koniec").onclick = () => {
       koniec(Number(document.getElementById("days").value));
+    };
+    document.getElementById("tygodniowka").onclick = () => {
+      tygodniowka();
     };
     document.getElementById("wz").onclick = () => {
       wz(Number(document.getElementById("day").value),Number(document.getElementById("month").value),Number(document.getElementById("year").value));
