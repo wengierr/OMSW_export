@@ -49,6 +49,29 @@ function currDay2(day, month, year) {
 }
 
 
+
+function getWeekNumber(date) {
+  const d = new Date(date);
+
+  // ISO: ustaw na najbliższy czwartek
+  d.setHours(0, 0, 0, 0);
+  d.setDate(d.getDate() + 3 - ((d.getDay() + 6) % 7));
+
+  // pierwszy czwartek roku
+  const firstThursday = new Date(d.getFullYear(), 0, 4);
+  firstThursday.setDate(
+    firstThursday.getDate() +
+    3 - ((firstThursday.getDay() + 6) % 7)
+  );
+
+  const weekNumber = 1 + Math.round(
+    (d - firstThursday) / (7 * 86400000)
+  );
+
+  return weekNumber;
+}
+
+
 function wz(day, month, year) {
 
 const { dateFrom, dateTo } = getDailyDays(day, month, year);
@@ -421,6 +444,11 @@ const { dateFrom, dateTo } = getWeeklyDays();
 const pdfdatefrom = removeDashes(shortDate(String(dateFrom)));
 const pdfdateto = removeDashes(shortDate(String(dateTo)));
 
+const week = String(getWeekNumber(dateFrom)).padStart(2, "0");
+
+console.log(week);
+
+
 const scheduleId = getScheduleIdSafe();
 
 if (!scheduleId) return;
@@ -458,7 +486,7 @@ return fetch(`https://omsw.spsm.pse.pl/api/schedules/${scheduleId}/cards/list/ex
 
   const a = document.createElement("a");
   a.href = url;
-  a.download = `tyg_${pdfdatefrom}_${pdfdateto}.pdf`;
+  a.download = `tyg_${week}_${pdfdatefrom}_${pdfdateto}.pdf`;
   document.body.appendChild(a);
   a.click();
   a.remove();
@@ -518,6 +546,10 @@ const { dateFrom, dateTo } = getWeeklyDays();
 const pdfdatefrom = removeDashes(shortDate(String(dateFrom)));
 const pdfdateto = removeDashes(shortDate(String(dateTo)));
 
+const week = String(getWeekNumber(dateFrom)).padStart(2, "0");
+
+console.log(week);
+  
 const scheduleId = getScheduleIdSafe();
 
 if (!scheduleId) return;
@@ -557,7 +589,7 @@ fetch(`https://omsw.spsm.pse.pl/api/schedules/${scheduleId}/cards/elements/expor
 
   const a = document.createElement("a");
   a.href = url;
-  a.download = `tyg_${pdfdatefrom}_${pdfdateto}.wyl`;
+  a.download = `tyg_${week}_${pdfdatefrom}_${pdfdateto}.wyl`;
   document.body.appendChild(a);
   a.click();
   a.remove();
