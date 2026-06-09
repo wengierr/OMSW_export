@@ -418,8 +418,8 @@ function getScheduleIdSafe() {
 function tyg(){
 
 const { dateFrom, dateTo } = getWeeklyDays();
-const pdfdateto = shortDate(String(dateFrom));
-const pdfdatefrom = shortDate(String(dateTo));
+const pdfdatefrom = removeDashes(shortDate(String(dateFrom)));
+const pdfdateto = removeDashes(shortDate(String(dateTo)));
 
 const scheduleId = getScheduleIdSafe();
 
@@ -488,12 +488,12 @@ function getWeeklyDays() {
   const daysToSaturday = (6 - day + 7) % 7;
 
   const saturday = new Date(now);
-  saturday.setHours(0, 0, 0, 0);
+  saturday.setHours(12, 0, 0, 0);
   saturday.setDate(now.getDate() + daysToSaturday);
 
   const friday = new Date(saturday);
   friday.setDate(saturday.getDate() + 6);
-  friday.setHours(23, 59, 59, 999);
+  friday.setHours(12, 00, 00, 000);
 
   return {
     dateFrom: saturday.toISOString(),
@@ -506,11 +506,17 @@ function shortDate(isoString) {
   return isoString.slice(0, 10);
 }
 
+
+function removeDashes(date) {
+  return date.replace(/-/g, "");
+}
+
+
 function mapaTyg(){
 
 const { dateFrom, dateTo } = getWeeklyDays();
-const pdfdateto = shortDate(String(dateFrom));
-const pdfdatefrom = shortDate(String(dateTo));
+const pdfdatefrom = removeDashes(shortDate(String(dateFrom)));
+const pdfdateto = removeDashes(shortDate(String(dateTo)));
 
 const scheduleId = getScheduleIdSafe();
 
