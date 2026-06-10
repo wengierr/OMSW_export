@@ -599,15 +599,19 @@ fetch(`https://omsw.spsm.pse.pl/api/schedules/${scheduleId}/cards/elements/expor
 
 async function tygodniowka() {
 
+  const scheduleId = getScheduleIdSafe();
+
+  if (scheduleId) pokazKomunikat("Rozpoczęto pobieranie tygodniówki - może chwilę potrwać", 5);
+
   pokazKomunikat("Rozpoczęto pobieranie tygodniówki - może chwilę potrwać", 5);
 
   await mapaTyg();
 
   await tyg();
 
-  pokazKomunikat("Zakończono pobieranie tygodniówki", 5);
+  if (scheduleId) pokazKomunikat("Zakończono pobieranie tygodniówki", 5);
 }
-  
+ 
 
 function help() {
 '======================================='
@@ -682,7 +686,13 @@ function help() {
     <div style="display:flex; gap:6px;">
 
     Data:
-   
+
+    <button onclick="addDay(-1)">-</button>
+    <button onclick="addDay(1)">+</button>
+
+    </div>
+    
+    <div style="display:flex; gap:6px;">
     <input id="day" type="number" placeholder="DD" min="1" max="31"
       style="width:40px;">
   
@@ -709,6 +719,21 @@ function help() {
   
 
   `;
+
+    
+    window.addDay = function(delta) {
+      const day = Number(document.getElementById("day").value);
+      const month = Number(document.getElementById("month").value);
+      const year = Number(document.getElementById("year").value);
+    
+      const d = new Date(year, month - 1, day);
+    
+      d.setDate(d.getDate() + delta);
+    
+      document.getElementById("day").value = d.getDate();
+      document.getElementById("month").value = d.getMonth() + 1;
+      document.getElementById("year").value = d.getFullYear();
+    };
 
     let isDragging = false;
     let offsetX, offsetY;
@@ -755,13 +780,13 @@ function help() {
 
     document.body.appendChild(panel);
 
+      
+    const d = new Date();
+    d.setDate(d.getDate() + 1);
     
-    const now = new Date();
-    
-    document.getElementById("day").value = now.getDate() + 1;
-    document.getElementById("month").value = now.getMonth() + 1;
-    document.getElementById("year").value = now.getFullYear();
-    
+    document.getElementById("day").value = d.getDate();
+    document.getElementById("month").value = d.getMonth() + 1;
+    document.getElementById("year").value = d.getFullYear();
 
 
     document.getElementById("rano").onclick = () => {
