@@ -120,6 +120,54 @@ return fetch("https://omsw.spsm.pse.pl/api/schedules/1/cards/list/export/pdf", {
 }
 
 
+function wylaczane(day, month, year) {
+
+const { dateFrom, dateTo } = getDailyDays(day, month, year);
+  
+const d = String(day).padStart(2, "0");
+const m = String(month).padStart(2, "0");
+const y = String(year);
+
+const pdfdate = String(currDay(day, month, year));
+
+const our_body = "{\"filter\":{\"scheduleTabDateFrom\":\"" + dateFrom + "\",\"scheduleTabDateTo\":\"" + dateTo + "\",\"scheduleTabMode\":\"BETWEEN\",\"scheduleTabDay\":null,\"cardNumber\":null,\"cardStatus\":[],\"dateFilterMode\":\"SWITCHED_OFF\",\"dateFrom\":\"" + dateFrom + "\",\"dateTo\":\"" + dateTo + "\",\"odmList\":[{\"id\":\"WA\",\"value\":false},{\"id\":\"RA\",\"value\":false},{\"id\":\"KA\",\"value\":false},{\"id\":\"PO\",\"value\":false},{\"id\":\"BY\",\"value\":false},{\"id\":\"ZAG\",\"value\":false}],\"opcMarker\":[],\"influenceOnExchange\":[],\"operativeManagements\":[],\"inPwk\":[],\"inPwt\":[],\"outageTypes\":[],\"outageKinds\":[],\"voltageProbeRequired\":null,\"scheduleRequired\":null,\"voltageLevels\":[],\"voltageList\":[],\"positiveResultCodes\":[{\"id\":\"PLA\",\"value\":true},{\"id\":\"ZW\",\"value\":true},{\"id\":\"PC\",\"value\":true}],\"otherResultCodes\":[{\"id\":\"NP\",\"value\":false},{\"id\":\"OD\",\"value\":false},{\"id\":\"WYC\",\"value\":false}],\"businessPartner\":[],\"businessPartnerRole\":[],\"planDeCjiOsd\":null,\"showAx\":true,\"showOx\":null,\"separationCC\":null,\"cartesianPositiveResultCodes\":true,\"cartesianOtherResultCodes\":[{\"id\":\"NP\",\"value\":false},{\"id\":\"OD\",\"value\":false},{\"id\":\"WYC\",\"value\":false}],\"extractAllSubelements\":null,\"cardVisibility\":\"NOT_HIDDEN\"},\"sort\":{\"preset\":\"_area_voltage_vl\",\"fields\":[]}}"
+  
+return fetch("https://omsw.spsm.pse.pl/api/schedules/1/cards/list/export/pdf", {
+  "headers": {
+    "accept": "application/json, text/plain, */*",
+    "accept-language": "pl",
+    "Authorization": "Bearer " + getToken(),
+    "content-type": "application/json",
+    "sec-ch-ua": "\"Chromium\";v=\"148\", \"Microsoft Edge\";v=\"148\", \"Not/A)Brand\";v=\"99\"",
+    "sec-ch-ua-mobile": "?0",
+    "sec-ch-ua-platform": "\"Windows\""
+  },
+  "referrer": "https://omsw.spsm.pse.pl/schedules/1",
+  "body":  our_body,
+  "method": "POST",
+  "mode": "cors",
+  "credentials": "include"
+})
+.then(res => {
+  console.log("STATUS:", res.status);
+  if (!res.ok) {
+    throw new Error("HTTP error " + res.status);
+  }
+  return res.blob();
+})
+.then(blob => {
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `Do_zgód_${pdfdate}_OMSW.pdf`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+});
+}
+
+
 function lz(day, month, year) {
 
 const { dateFrom, dateTo } = getDailyDays(day, month, year);
@@ -715,6 +763,7 @@ function help() {
       <button id="lzwpt">Lista zgłoszeń WPT</button>
       <button id="wyl_ele">Lista wyłączanych elementów</button>
       <button id="mapa_d">Mapa</button>
+      <button id="do_zgod">Do zgód</button>
     </div>
   
 
@@ -815,6 +864,9 @@ function help() {
     };
     document.getElementById("mapa_d").onclick = () => {
       mapa_d(Number(document.getElementById("day").value),Number(document.getElementById("month").value),Number(document.getElementById("year").value));
+    };
+      document.getElementById("do_zgod").onclick = () => {
+      wylaczane(Number(document.getElementById("day").value),Number(document.getElementById("month").value),Number(document.getElementById("year").value));
     };
     
   }
