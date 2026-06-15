@@ -380,6 +380,14 @@ function shiftDateFromToday(offset) {
 // }
 
 async function narada(n1) {
+
+  for (let i = 0; i <= n1; i++) {
+
+    const { day, month, year } = shiftDateFromToday(i + 1);
+
+    await mapa_d(day, month, year);
+  }
+  
   for (let i = 0; i <= n1; i++) {
 
     const { day, month, year } = shiftDateFromToday(i + 1);
@@ -389,8 +397,6 @@ async function narada(n1) {
     await lz(day, month, year);
 
     await wyl_ele(day, month, year);
-
-    await mapa_d(day, month, year);
   }
 
   pokazKomunikat("Zakończono pobieranie dokumentów do narady", 5);
@@ -405,8 +411,6 @@ async function rano(n1) {
 
     const { day, month, year } = shiftDateFromToday(i + 2);
 
-    console.log(`DATA: ${day}.${month}.${year}`);
-
     await wz(day, month, year);
   }
 
@@ -415,20 +419,23 @@ async function rano(n1) {
 
 
 async function koniec(n1) {
+
   for (let i = 0; i <= n1; i++) {
 
-    // 👉 dzień od pojutrza
     const { day, month, year } = shiftDateFromToday(i + 2);
 
-    console.log(`DATA: ${day}.${month}.${year}`);
+    await mapa_d(day, month, year);
+  }
+  
+  for (let i = 0; i <= n1; i++) {
+
+    const { day, month, year } = shiftDateFromToday(i + 2);
 
     await wz(day, month, year);
 
     await lz(day, month, year);
 
     await lzwpt(day, month, year);
-
-    await mapa_d(day, month, year);
   }
 
   pokazKomunikat("Zakończono pobieranie dokumentów na koniec dnia", 5);
