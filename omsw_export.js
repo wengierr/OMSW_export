@@ -8,7 +8,11 @@
   window.OMSW_TOOL_RUNNING = true;
 
   console.log("START 🚀");
-
+  
+  window.closeOmswTool = function() {
+    document.getElementById("omsw-panel")?.remove();
+    delete window.OMSW_TOOL_RUNNING;
+  };
 
 function getToken() {
   for (let key in localStorage) {
