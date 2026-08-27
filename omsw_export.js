@@ -571,16 +571,16 @@ function getDailyDays(day, month, year) {
 function getWeeklyDays() {
   const now = new Date();
 
-  const day = now.getDay(); // 0-6
+  const day = now.getDay();
   const daysToSaturday = (6 - day + 7) % 7;
 
   const saturday = new Date(now);
-  saturday.setHours(12, 0, 0, 0);
   saturday.setDate(now.getDate() + daysToSaturday);
+  saturday.setHours(0, 0, 0, 0);
 
   const friday = new Date(saturday);
   friday.setDate(saturday.getDate() + 6);
-  friday.setHours(12, 00, 00, 000);
+  friday.setHours(23, 59, 59, 999);
 
   return {
     dateFrom: saturday.toISOString(),
@@ -649,6 +649,60 @@ fetch(`https://omsw.spsm.pse.pl/api/schedules/${scheduleId}/cards/elements/expor
   const a = document.createElement("a");
   a.href = url;
   a.download = `tyg_${week}_${pdfdatefrom}_${pdfdateto}.wyl`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+});
+}
+
+
+async function OPCtyg(){
+
+const { dateFrom, dateTo } = getWeeklyDays();
+const pdfdatefrom = removeDashes(shortDate(String(dateFrom)));
+const pdfdateto = removeDashes(shortDate(String(dateTo)));
+
+const week = String(getWeekNumber(dateFrom)).padStart(2, "0");
+
+console.log(week);
+
+  
+return fetch(`https://omsw.spsm.pse.pl/api/schedules/1/cards/elements/export/opc/xlsx`, {
+  "headers": {
+    "accept": "application/json, text/plain, */*",
+    "accept-language": "pl",
+    "authorization": "Bearer " + getToken(),
+    "cache-control": "no-cache",
+    "content-type": "application/json",
+    "pragma": "no-cache",
+    "sec-ch-ua": "\"Chromium\";v=\"148\", \"Microsoft Edge\";v=\"148\", \"Not/A)Brand\";v=\"99\"",
+    "sec-ch-ua-mobile": "?0",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "sec-fetch-dest": "empty",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-site": "same-origin"
+  },
+  "referrer": "https://omsw.spsm.pse.pl/schedules/1",
+  "body": "{\"filter\":{\"scheduleTabDateFrom\":null,\"scheduleTabDateTo\":null,\"scheduleTabMode\":\"ANY\",\"scheduleTabDay\":null,\"cardNumber\":null,\"cardStatus\":[],\"dateFilterMode\":null,\"dateFrom\":\"" + dateFrom + "\",\"dateTo\":\"" + dateTo + "\",\"odmList\":[{\"id\":\"WA\",\"value\":false},{\"id\":\"RA\",\"value\":false},{\"id\":\"KA\",\"value\":false},{\"id\":\"PO\",\"value\":false},{\"id\":\"BY\",\"value\":false},{\"id\":\"ZAG\",\"value\":false}],\"opcMarker\":[],\"influenceOnExchange\":[],\"operativeManagements\":[],\"inPwk\":[],\"inPwt\":[],\"outageTypes\":[],\"outageKinds\":[],\"voltageProbeRequired\":null,\"scheduleRequired\":null,\"voltageLevels\":[],\"voltageList\":[],\"positiveResultCodes\":[{\"id\":\"PLA\",\"value\":true},{\"id\":\"ZW\",\"value\":true},{\"id\":\"PC\",\"value\":true}],\"otherResultCodes\":[{\"id\":\"NP\",\"value\":false},{\"id\":\"OD\",\"value\":false},{\"id\":\"WYC\",\"value\":false}],\"businessPartner\":[],\"businessPartnerRole\":[],\"planDeCjiOsd\":null,\"showAx\":true,\"showOx\":null,\"separationCC\":null,\"cartesianPositiveResultCodes\":true,\"cartesianOtherResultCodes\":[{\"id\":\"NP\",\"value\":false},{\"id\":\"OD\",\"value\":false},{\"id\":\"WYC\",\"value\":false}],\"extractAllSubelements\":null,\"cardVisibility\":\"NOT_HIDDEN\"},\"sort\":{\"preset\":null,\"fields\":[]}}",
+  "method": "POST",
+  "mode": "cors",
+  "credentials": "include"
+})
+.then(res => {
+  console.log("STATUS:", res.status);
+  console.log("dateFrom:", dateFrom);
+  console.log("dateTo:", dateTo);
+  if (!res.ok) {
+    throw new Error("HTTP error " + res.status);
+  }
+  return res.blob();
+})
+.then(blob => {
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `OPC_tyg_${week}_${pdfdatefrom}_${pdfdateto}.xlsx`;
   document.body.appendChild(a);
   a.click();
   a.remove();
@@ -731,6 +785,7 @@ function help() {
       <button id="narada">Do narady</button>
       <button id="koniec">Na koniec dnia</button>
       <button id="tygodniowka">Tygodniówka</button>
+      <button id="OPC_tyg">Plik OPC tygodniowy</button>
     </div>
 
     <div id="status" style="margin-top:8px; font-size:12px;"></div>
@@ -861,6 +916,9 @@ function help() {
     document.getElementById("tygodniowka").onclick = () => {
       tygodniowka();
     };
+    document.getElementById("OPC_tyg").onclick = () => {
+      OPCtyg();
+    };
     document.getElementById("wz").onclick = () => {
       wz(Number(document.getElementById("day").value),Number(document.getElementById("month").value),Number(document.getElementById("year").value));
     };
@@ -883,6 +941,6 @@ function help() {
   }
 
   // ===== START =====
-  setTimeout(init, 2000);
+  setTimeout(init, 500);
 
 })();
