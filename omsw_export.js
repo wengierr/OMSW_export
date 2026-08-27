@@ -500,7 +500,11 @@ function getScheduleIdSafe() {
 function tyg(){
 
 const { dateFrom, dateTo } = getWeeklyDays();
-const pdfdatefrom = removeDashes(shortDate(String(dateFrom)));
+
+const d = new Date(dateFrom);
+
+const pdfdatefrom = d.getFullYear() + String(d.getMonth() + 1).padStart(2, "0") + String(d.getDate()).padStart(2, "0");
+// const pdfdatefrom = removeDashes(shortDate(String(dateFrom)));
 const pdfdateto = removeDashes(shortDate(String(dateTo)));
 
 const week = String(getWeekNumber(dateFrom)).padStart(2, "0");
@@ -602,7 +606,11 @@ function removeDashes(date) {
 function mapaTyg(){
 
 const { dateFrom, dateTo } = getWeeklyDays();
-const pdfdatefrom = removeDashes(shortDate(String(dateFrom)));
+
+const d = new Date(dateFrom);
+  
+const pdfdatefrom = d.getFullYear() + String(d.getMonth() + 1).padStart(2, "0") + String(d.getDate()).padStart(2, "0");
+// const pdfdatefrom = removeDashes(shortDate(String(dateFrom)));
 const pdfdateto = removeDashes(shortDate(String(dateTo)));
 
 const week = String(getWeekNumber(dateFrom)).padStart(2, "0");
@@ -656,10 +664,30 @@ fetch(`https://omsw.spsm.pse.pl/api/schedules/${scheduleId}/cards/elements/expor
 }
 
 
+
+function getExportFileName() {
+  const now = new Date();
+
+  const date =
+    now.getFullYear() +
+    String(now.getMonth() + 1).padStart(2, "0") +
+    String(now.getDate()).padStart(2, "0");
+
+  const time =
+    String(now.getHours()).padStart(2, "0") +
+    String(now.getMinutes()).padStart(2, "0");
+
+  return `${date}_${time}_OPC_0_PL.xlsx`;
+}
+
+
 async function OPCtyg(){
 
 const { dateFrom, dateTo } = getWeeklyDays();
-const pdfdatefrom = removeDashes(shortDate(String(dateFrom)));
+const d = new Date(dateFrom);
+  
+const pdfdatefrom = d.getFullYear() + String(d.getMonth() + 1).padStart(2, "0") + String(d.getDate()).padStart(2, "0");
+// const pdfdatefrom = removeDashes(shortDate(String(dateFrom)));
 const pdfdateto = removeDashes(shortDate(String(dateTo)));
 
 const week = String(getWeekNumber(dateFrom)).padStart(2, "0");
@@ -702,7 +730,7 @@ return fetch(`https://omsw.spsm.pse.pl/api/schedules/1/cards/elements/export/opc
 
   const a = document.createElement("a");
   a.href = url;
-  a.download = `OPC_tyg_${week}_${pdfdatefrom}_${pdfdateto}.xlsx`;
+  a.download = getExportFileName();
   document.body.appendChild(a);
   a.click();
   a.remove();
